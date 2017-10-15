@@ -1,0 +1,31 @@
+- hosts: all
+  vars:
+    gitlab_ci_url: https://git.something.com/ci
+    registration_token: sdfsdfsdfsdfsdfsdfsd
+    token: ghjkghjkghjkghjkghjkghjkghjkgh 
+  
+  tasks:
+  - name: Create dir (per installation docs)
+    win_file:
+      path: C:\GitLab-Runner
+      state: directory
+  
+  - name: Fetch GitLab Runner Binary
+    win_get_url:
+      url: https://gitlab-runner-downloads.s3.amazonaws.com/latest/binaries/gitlab-runner-windows-amd64.exe
+      dest: C:\GitLab-Runner\gitlab-runner.exe
+
+  - name: configure GitLab Runner
+    win_shell:
+      C:\GitLab-Runner\gitlab-runner.exe register --non-interactive `
+       --url {{ gitlab_ci_url }} `
+       --registration-token {{ registration_token }} `
+       --token {{ token }} `
+       --executor shell
+
+  - name: Install runner as service
+    win_command: C:\GitLab-Runner\gitlab-runner.exe install
+
+  - name: Start runner service
+    win_command: C:\GitLab-Runner\gitlab-runner.exe start
+   
